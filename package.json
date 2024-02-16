@@ -1,0 +1,19 @@
+{
+  "name": "rest-pet-find",
+  "version": "1.0.0",
+  "description": "A Node.js RESTful API, which contains lost pets data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vvsitnic/node-rest-pet-find.git"
+  },
+  "author": "vvsitnic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vvsitnic/node-rest-pet-find/issues"
+  },
+  "homepage": "https://github.com/vvsitnic/node-rest-pet-find#readme"
+}
