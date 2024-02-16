@@ -1,7 +1,7 @@
 {
 	"name": "rest-pet-find",
 	"version": "1.0.0",
-	"description": "A Node.js RESTful API, which contains lost pets data",
+	"description": "A Node.js RESTful API ment for PetFind app",
 	"main": "index.js",
 	"scripts": {
 		"start": "nodemon server.js"

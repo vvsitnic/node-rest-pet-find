@@ -1,1 +1,1 @@
-A Node.js RESTful API, which contains lost pets data
+A Node.js RESTful API ment for PetFind app.
