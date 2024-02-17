@@ -8,8 +8,13 @@ router.get('/', (req, res) => {
 // Defined route in one location
 router
 	.route('/:id')
+	.post((req, res) => {
+		res.json({
+			message: 'Creating new pet',
+			petId: req.params.petId,
+		});
+	})
 	.get((req, res) => {
-		console.log(req.pet);
 		res.json({
 			message: 'Getting pet with requested ID',
 			petId: req.params.petId,
