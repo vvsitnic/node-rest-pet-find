@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-
-const petRouter = require('./routes/pet.js');
+const admin = require('firebase-admin');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -23,6 +22,7 @@ app.use((req, res, next) => {
 	next();
 });
 
+const petRouter = require('./routes/pet.js');
 app.use('/pets', petRouter);
 
 // FIXME:
