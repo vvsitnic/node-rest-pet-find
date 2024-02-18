@@ -1,19 +1,26 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-	res.json({ message: 'pets' });
-});
+router
+	.route('/')
+	.get((req, res) => {
+		res.json({ message: 'pets' });
+	})
+	.post((req, res) => {
+		const pet = {
+			name: req.body.name,
+			coords: req.body.coords,
+		};
+
+		res.json({
+			message: 'Creating new pet',
+			pet: pet,
+		});
+	});
 
 // Defined route in one location
 router
 	.route('/:id')
-	.post((req, res) => {
-		res.json({
-			message: 'Creating new pet',
-			petId: req.params.petId,
-		});
-	})
 	.get((req, res) => {
 		res.json({
 			message: 'Getting pet with requested ID',
@@ -32,5 +39,9 @@ router
 			petId: req.params.petId,
 		});
 	});
+
+router.get('/on-map', (req, res) => {
+	res.json({ message: 'list of pets' });
+});
 
 module.exports = router;
