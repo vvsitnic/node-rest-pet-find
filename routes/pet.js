@@ -1,22 +1,24 @@
 const express = require('express');
 const router = express.Router();
 
-const admin = require('firebase-admin');
-const serviceAccount = require('../key.json');
-
-import {
+const {
+	initializeApp,
+	applicationDefault,
+	cert,
+} = require('firebase-admin/app');
+const {
 	getFirestore,
-	doc,
-	setDoc,
-	addDoc,
-	collection,
-} from 'https://www.gstatic.com/firebasejs/9.6.8/firebase-firestore.js';
+	Timestamp,
+	FieldValue,
+	Filter,
+} = require('firebase-admin/firestore');
+const serviceAccount = require('../serviceAccountKey.json');
 
-admin.initializeApp({
-	credential: admin.credential.cert(serviceAccount),
+initializeApp({
+	credential: cert(serviceAccount),
 });
 
-const db = admin.firestore();
+const db = getFirestore();
 
 router
 	.route('/')
@@ -24,26 +26,16 @@ router
 		res.json({ message: 'pets' });
 	})
 	.post(async (req, res) => {
-		// const pet = {
-		// 	name: req.body.name,
-		// 	coords: req.body.coords,
-		// };
-
-		// res.json({
-		// 	message: 'Creating new pet',
-		// 	pet: pet,
-		// });
-
 		try {
 			const pet = {
 				name: req.body.name,
 				coords: req.body.coords,
 			};
 
-			const docRef = await addDoc(collection(db, 'pets'), pet);
-			console.log('Document written with ID: ', docRef.id);
-		} catch (e) {
-			console.error('Error adding document: ', e);
+			const docRef = db.collection('pets').doc('pet');
+			await docRef.set(pet);
+		} catch (err) {
+			console.error('Error adding document: ', err);
 		}
 	});
 
