@@ -25,20 +25,14 @@ app.use((req, res, next) => {
 const petRouter = require('./routes/pet.js');
 app.use('/pets', petRouter);
 
-// FIXME:
-// app.use((req, res, next) => {
-// 	const error = new Error('Not found');
-// 	error.status = 404;
-// 	next(error);
-// });
+app.use((req, res, next) => {
+	const error = new Error('Not found');
+	error.status = 404;
+	next(error);
+});
 
-// app.use((error, req, res) => {
-// 	res.status(error.status || 500);
-// 	res.json({
-// 		error: {
-// 			message: error.message,
-// 		},
-// 	});
-// });
+app.use((err, req, res, next) => {
+	res.status(err.status || 500).json({ error: err.message });
+});
 
 app.listen(process.env.PORT || 3000);
