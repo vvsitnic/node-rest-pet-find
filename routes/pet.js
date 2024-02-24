@@ -20,6 +20,20 @@ initializeApp({
 
 const db = getFirestore();
 
+router.get('/on-map', async (req, res) => {
+	// Find pets on specific are of the world
+	try {
+		// const petRef = db.collection('pets');
+		// const snapshot = await petRef.where('id', '==', +req.params.id).get();
+		// snapshot.forEach(doc => {
+		// 	console.log(doc.id, '=>', doc.data());
+		// });
+	} catch (err) {
+		next(err);
+	}
+	console.log(req.body);
+});
+
 router
 	.route('/')
 	.get((req, res) => {
@@ -27,10 +41,9 @@ router
 	})
 	.post(async (req, res, next) => {
 		// Create new pet doc
-		const petId = Date.now();
 		try {
+			const petId = Date.now();
 			const pet = {
-				id: petId,
 				name: req.body.name,
 				description: req.body.description,
 				coords: req.body.coords,
@@ -42,22 +55,27 @@ router
 			await docRef.set(pet);
 
 			// Return id
-			res.json({ id: petId });
+			res.json({ id: docRef.id });
 		} catch (err) {
-			// console.error('Error adding document: ', err);
 			next(err);
 		}
 	});
 
 router
 	.route('/:id')
-	.get(async (req, res) => {
+	.get(async (req, res, next) => {
 		// Find pet by id
-		const petRef = db.collection('pets');
-		const snapshot = await petRef.where('id', '==', +req.params.id).get();
-		snapshot.forEach(doc => {
-			console.log(doc.id, '=>', doc.data());
-		});
+		try {
+			const petRef = db.collection('pets').doc(req.params.id);
+			const doc = await petRef.get();
+			if (doc.exists) {
+				res.json(doc.data());
+			} else {
+				throw new Error('No such document');
+			}
+		} catch (err) {
+			next(err);
+		}
 	})
 	.put((req, res) => {
 		// Edit data of pet with specific id
@@ -65,9 +83,5 @@ router
 	.delete((req, res) => {
 		// Delete pet with specific id
 	});
-
-router.get('/on-map', (req, res) => {
-	// Find pets on specific are of the world
-});
 
 module.exports = router;
