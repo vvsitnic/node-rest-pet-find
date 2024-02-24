@@ -38,7 +38,7 @@ router
 				phone: req.body.phone,
 			};
 
-			const docRef = db.collection('pets').doc('pet');
+			const docRef = db.collection('pets').doc();
 			await docRef.set(pet);
 
 			// Return id
@@ -53,6 +53,11 @@ router
 	.route('/:id')
 	.get(async (req, res) => {
 		// Find pet by id
+		const petRef = db.collection('pets');
+		const snapshot = await petRef.where('id', '==', +req.params.id).get();
+		snapshot.forEach(doc => {
+			console.log(doc.id, '=>', doc.data());
+		});
 	})
 	.put((req, res) => {
 		// Edit data of pet with specific id
