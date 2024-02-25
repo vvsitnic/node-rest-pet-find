@@ -23,10 +23,7 @@ const db = getFirestore();
 router.get('/on-map', async (req, res, next) => {
 	// Find pets on specific are of the world
 	try {
-		const margins = {
-			northEast: { lat: 47.03956797158309, lng: 28.859646320343018 },
-			southWest: { lat: 47.030793296472865, lng: 28.844797611236576 },
-		};
+		const margins = req.body;
 
 		const petRef = db.collection('pets');
 		const snapshot = await petRef
@@ -52,40 +49,42 @@ router.get('/on-map', async (req, res, next) => {
 				margins.southWest.lat
 			)
 			.get();
+
+		const arr = [];
 		snapshot.forEach(doc => {
-			console.log(doc.id, '=>', doc.data());
+			const obj = {
+				id: doc.id,
+				petInfo: doc.data(),
+			};
+			arr.push(obj);
 		});
+
+		res.json(arr);
 	} catch (err) {
 		next(err);
 	}
 	console.log(req.body);
 });
 
-router
-	.route('/')
-	.get((req, res) => {
-		// Get all pets in datagbse
-	})
-	.post(async (req, res, next) => {
-		// Create new pet doc
-		try {
-			const pet = {
-				name: req.body.name,
-				description: req.body.description,
-				coords: req.body.coords,
-				email: req.body.email,
-				phone: req.body.phone,
-			};
+router.post('/', async (req, res, next) => {
+	// Create new pet doc
+	try {
+		const pet = {
+			name: req.body.name,
+			description: req.body.description,
+			coords: req.body.coords,
+			email: req.body.email,
+			phone: req.body.phone,
+		};
 
-			const docRef = db.collection('pets').doc();
-			await docRef.set(pet);
+		const docRef = await db.collection('pets').doc().set(pet);
 
-			// Return id
-			res.json({ id: docRef.id });
-		} catch (err) {
-			next(err);
-		}
-	});
+		// Return id
+		res.json({ id: docRef.id });
+	} catch (err) {
+		next(err);
+	}
+});
 
 router
 	.route('/:id')
@@ -95,19 +94,46 @@ router
 			const petRef = db.collection('pets').doc(req.params.id);
 			const doc = await petRef.get();
 			if (doc.exists) {
-				res.json(doc.data());
+				res.json({ id: doc.id, petInfo: doc.data() });
 			} else {
-				throw new Error('No such document');
+				throw new Error('No document found');
 			}
 		} catch (err) {
 			next(err);
 		}
 	})
-	.put((req, res) => {
+	.put(async (req, res, next) => {
 		// Edit data of pet with specific id
+		try {
+			const pet = {
+				name: req.body.name,
+				description: req.body.description,
+				coords: req.body.coords,
+				email: req.body.email,
+				phone: req.body.phone,
+			};
+
+			const docRef = await db
+				.collection('pets')
+				.doc(req.params.id)
+				.update(pet);
+
+			// Return id
+			res.json({ id: docRef.id });
+		} catch (err) {
+			next(err);
+		}
 	})
-	.delete((req, res) => {
+	.delete(async (req, res, next) => {
 		// Delete pet with specific id
+		try {
+			const docRef = await db
+				.collection('pets')
+				.doc(req.params.id)
+				.delete();
+		} catch (err) {
+			next(err);
+		}
 	});
 
 module.exports = router;

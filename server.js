@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-	res.status(err.status || 500).json({ error: err.message });
+	res.status(err.status || 500).json({ error: err });
 });
 
 app.listen(process.env.PORT || 3000);
