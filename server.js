@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-const petRouter = require('./routes/pet.js');
+const petRouter = require('./routes/pets.js');
 app.use('/pets', petRouter);
 
 app.use((req, res, next) => {
