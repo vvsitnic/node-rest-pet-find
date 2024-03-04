@@ -3,6 +3,20 @@ const app = express();
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 
+const { connectToDb, getDb } = require('./db');
+
+// db connection
+let db;
+
+connectToDb(err => {
+	if (!err) {
+		app.listen(process.env.PORT || 3000, () => {
+			console.log('App running');
+		});
+		db = getDb();
+	}
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -34,5 +48,3 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
 	res.status(err.status || 500).json({ error: err });
 });
-
-app.listen(process.env.PORT || 3000);
