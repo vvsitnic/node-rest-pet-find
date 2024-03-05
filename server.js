@@ -1,21 +1,11 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const admin = require('firebase-admin');
+const mongoose = require('mongoose');
 
-const { connectToDb, getDb } = require('./db');
+const petRouter = require('./api/routes/pets.js');
 
-// db connection
-let db;
-
-connectToDb(err => {
-	if (!err) {
-		app.listen(process.env.PORT || 3000, () => {
-			console.log('App running');
-		});
-		db = getDb();
-	}
-});
+mongoose.connect('mongodb://0.0.0.0:27017/pet-find');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -36,7 +26,6 @@ app.use((req, res, next) => {
 	next();
 });
 
-const petRouter = require('./routes/pets.js');
 app.use('/pets', petRouter);
 
 app.use((req, res, next) => {
@@ -47,4 +36,9 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
 	res.status(err.status || 500).json({ error: err });
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+	console.log(`App running on port ${port}`);
 });
