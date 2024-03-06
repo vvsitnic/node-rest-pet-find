@@ -24,7 +24,7 @@ router.post('/', async (req, res, next) => {
 	});
 	pet.save()
 		.then(result => {
-			console.log(result);
+			res.status(200).json({ id: result.id });
 		})
 		.catch(err => {
 			console.log(err);
@@ -37,10 +37,9 @@ router
 	.get(async (req, res, next) => {
 		// Get pet by id
 		const id = req.params.id;
-		Pet.findById(id)
+		Pet.findById(id, `${req.query.q === 'short' ? 'petName, phone' : ''}`)
 			.exec()
 			.then(doc => {
-				console.log(doc);
 				res.status(200).json(doc);
 			})
 			.catch(err => {
@@ -48,19 +47,19 @@ router
 				res.status(500).json({ error: err });
 			});
 	})
-	.patch(async (req, res, next) => {
-		// Edit data of pet with specific id
-		// const id = req.params.id;
-		// Pet.updateOne({ _id: id })
-		// 	.exec()
-		// 	.then(() => {
-		// 		console.log(`${id} deleted successfully`);
-		// 	})
-		// 	.catch(err => {
-		// 		console.log(err);
-		// 		res.status(500).json({ error: err });
-		// 	});
-	})
+	// .patch(async (req, res, next) => {
+	// 	Edit data of pet with specific id
+	// 	const id = req.params.id;
+	// 	Pet.updateOne({ _id: id })
+	// 		.exec()
+	// 		.then(() => {
+	// 			console.log(`${id} deleted successfully`);
+	// 		})
+	// 		.catch(err => {
+	// 			console.log(err);
+	// 			res.status(500).json({ error: err });
+	// 		});
+	// })
 	.delete(async (req, res, next) => {
 		// Delete pet with specific id
 		const id = req.params.id;
