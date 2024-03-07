@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 const Pet = require('../models/pet.js');
 
@@ -8,8 +10,9 @@ router.get('/on-map', async (req, res, next) => {
 	// Find pets on specific are of the world
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', upload.single('petImg'), (req, res, next) => {
 	// Create new pet doc
+	console.log(req.file);
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
 		petName: req.body.petName,
