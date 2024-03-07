@@ -4,11 +4,71 @@ const mongoose = require('mongoose');
 
 const Pet = require('../models/pet.js');
 
-router.get('/on-map', async (req, res, next) => {
+router.get('/on-map', (req, res, next) => {
 	// Find pets on specific are of the world
+	const { northEast, southWest } = req.body;
+
+	Pet.find({
+		$and: [
+			{
+				'coords.lat': {
+					$lte: northEast.lat,
+					$gte: southWest.lat,
+				},
+			},
+			{
+				'coords.lng': {
+					$lte: northEast.lng,
+					$gte: southWest.lng,
+				},
+			},
+		],
+	})
+		.exec()
+		.then(result => {
+			console.log(result);
+			res.status(200).json(result);
+		})
+		.catch(err => next(err));
 });
 
-router.post('/', async (req, res, next) => {
+router.get('/radius', (req, res, next) => {
+	// Find pets on specific are of the world
+	/*
+	{
+		coords: {a, b}
+		distance:
+	} 
+	*/
+	const { lat, lng } = req.body.coords;
+	const distanceInKm = req.body.distance;
+	const distanceInDegres = distanceInKm / 111;
+
+	Pet.find({
+		$and: [
+			{
+				'coords.lat': {
+					$lte: lat + distanceInDegres,
+					$gte: lat - distanceInDegres,
+				},
+			},
+			{
+				'coords.lng': {
+					$lte: lng + distanceInDegres,
+					$gte: lng - distanceInDegres,
+				},
+			},
+		],
+	})
+		.exec()
+		.then(result => {
+			console.log(result);
+			res.status(200).json(result);
+		})
+		.catch(err => next(err));
+});
+
+router.post('/', (req, res, next) => {
 	// Create new pet doc
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
@@ -26,15 +86,12 @@ router.post('/', async (req, res, next) => {
 		.then(result => {
 			res.status(200).json({ id: result.id });
 		})
-		.catch(err => {
-			console.log(err);
-			res.status(500).json({ error: err });
-		});
+		.catch(err => next(err));
 });
 
 router
 	.route('/:id')
-	.get(async (req, res, next) => {
+	.get((req, res, next) => {
 		// Get pet by id
 		const id = req.params.id;
 		Pet.findById(id, `${req.query.q === 'short' ? 'petName, phone' : ''}`)
@@ -42,10 +99,7 @@ router
 			.then(doc => {
 				res.status(200).json(doc);
 			})
-			.catch(err => {
-				console.log(err);
-				res.status(500).json({ error: err });
-			});
+			.catch(err => next(err));
 	})
 	// .patch(async (req, res, next) => {
 	// 	Edit data of pet with specific id
@@ -60,7 +114,7 @@ router
 	// 			res.status(500).json({ error: err });
 	// 		});
 	// })
-	.delete(async (req, res, next) => {
+	.delete((req, res, next) => {
 		// Delete pet with specific id
 		const id = req.params.id;
 		Pet.deleteOne({ _id: id })
@@ -68,10 +122,7 @@ router
 			.then(() => {
 				console.log(`${id} deleted successfully`);
 			})
-			.catch(err => {
-				console.log(err);
-				res.status(500).json({ error: err });
-			});
+			.catch(err => next(err));
 	});
 
 module.exports = router;
