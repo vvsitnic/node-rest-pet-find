@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Pet = require('../models/pet.js');
 
 router.get('/on-map', (req, res, next) => {
-	// Find pets on specific are of the world
+	// Fetch pets that are in configurable are
 	// localhost:3000/pets/on-map?mnlat=&mxlat=&mnlng=&mxlng=
 	const {
 		mnlat: minLat,
@@ -38,33 +38,22 @@ router.get('/on-map', (req, res, next) => {
 		.catch(err => next(err));
 });
 
-router.get('/radius', (req, res, next) => {
-	// Find pets on specific are of the world
-	/*
-	{
-		coords: {a, b}
-		distance:
-	} 
-	*/
-	const { lat, lng } = req.body.coords;
-	const distanceInKm = req.body.distance;
-	const distanceInDegres = distanceInKm / 111;
+router.get('/nearby', (req, res, next) => {
+	// Fetch pets that are nearby, with the radius being a configurable parameter.
+	// localhost:3000/pets/nearby?lat=&lng=&d=
+	const { lat, lng, d: distance } = req.query;
 
+	// FIXME:
 	Pet.find({
-		$and: [
-			{
-				'coords.lat': {
-					$lte: lat + distanceInDegres,
-					$gte: lat - distanceInDegres,
+		location: {
+			$near: {
+				$geometry: {
+					type: 'Point',
+					coordinates: [lng, lat],
 				},
+				$maxDistance: distance,
 			},
-			{
-				'coords.lng': {
-					$lte: lng + distanceInDegres,
-					$gte: lng - distanceInDegres,
-				},
-			},
-		],
+		},
 	})
 		.exec()
 		.then(result => {
@@ -82,9 +71,9 @@ router.post('/', (req, res, next) => {
 		petOwner: req.body.petOwner,
 		phone: req.body.phone,
 		email: req.body.email,
-		coords: {
-			lat: req.body.coords.lat,
-			lng: req.body.coords.lng,
+		location: {
+			type: 'Point',
+			coordinates: [req.body.coords.lng, req.body.coords.lat],
 		},
 		dateLost: req.body.dateLost,
 	});

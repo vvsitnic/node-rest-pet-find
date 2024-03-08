@@ -6,9 +6,16 @@ const petSchema = mongoose.Schema({
 	petOwner: String,
 	phone: Number,
 	email: String,
-	coords: {
-		lat: Number,
-		lng: Number,
+	location: {
+		type: {
+			type: String,
+			enum: ['Point'],
+			required: true,
+		},
+		coordinates: {
+			type: [Number],
+			required: true,
+		},
 	},
 	dateLost: Number,
 });
