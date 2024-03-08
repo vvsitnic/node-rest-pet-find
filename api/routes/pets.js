@@ -6,20 +6,24 @@ const Pet = require('../models/pet.js');
 
 router.get('/on-map', (req, res, next) => {
 	// Fetch pets that are in configurable are
-	// localhost:3000/pets/on-map?n=&e=&s=&w=
+	// localhost:3000/pets/on-map?n=&e=&s=&w=&f=
 	// TODO: change names of variables
 	const { n, e, s, w } = req.query;
+	const filter = req.query.f || '';
 
-	Pet.find({
-		location: {
-			$geoWithin: {
-				$box: [
-					[+e, +n],
-					[+w, +s],
-				],
+	Pet.find(
+		{
+			location: {
+				$geoWithin: {
+					$box: [
+						[+e, +n],
+						[+w, +s],
+					],
+				},
 			},
 		},
-	})
+		{ filter }
+	)
 		.exec()
 		.then(result => {
 			console.log(result);
@@ -30,20 +34,24 @@ router.get('/on-map', (req, res, next) => {
 
 router.get('/nearby', (req, res, next) => {
 	// Fetch pets that are nearby, with the radius being a configurable parameter.
-	// localhost:3000/pets/nearby?lat=&lng=&d=
+	// localhost:3000/pets/nearby?lat=&lng=&d=&f=
 	const { lat, lng, d: distance } = req.query;
+	const filter = req.query.f || '';
 
-	Pet.find({
-		location: {
-			$near: {
-				$geometry: {
-					type: 'Point',
-					coordinates: [lng, lat],
+	Pet.find(
+		{
+			location: {
+				$near: {
+					$geometry: {
+						type: 'Point',
+						coordinates: [lng, lat],
+					},
+					$maxDistance: distance,
 				},
-				$maxDistance: distance,
 			},
 		},
-	})
+		filter
+	)
 		.exec()
 		.then(result => {
 			console.log(result);
@@ -79,8 +87,8 @@ router
 		// Get pet by id
 		// localhost:3000/pets/:id?q=
 		const id = req.params.id;
-		const filter = req.query.q || '';
-		Pet.findById(id, `${filter}`)
+		const filter = req.query.f || '';
+		Pet.findById(id, filter)
 			.exec()
 			.then(doc => {
 				res.status(200).json(doc);
