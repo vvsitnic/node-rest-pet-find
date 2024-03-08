@@ -94,7 +94,8 @@ router
 	.get((req, res, next) => {
 		// Get pet by id
 		const id = req.params.id;
-		Pet.findById(id, `${req.query.q === 'short' ? 'petName, phone' : ''}`)
+		const filter = req.query.q || '';
+		Pet.findById(id, `${filter}`)
 			.exec()
 			.then(doc => {
 				res.status(200).json(doc);
