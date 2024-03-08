@@ -6,20 +6,26 @@ const Pet = require('../models/pet.js');
 
 router.get('/on-map', (req, res, next) => {
 	// Find pets on specific are of the world
-	const { northEast, southWest } = req.body;
+	// localhost:3000/pets/on-map?mnlt=&mxlt=&mnlg=&mxlg=
+	const {
+		mnlt: minLat,
+		mxlt: maxLat,
+		mnlg: minLng,
+		mxlg: maxLng,
+	} = req.query;
 
 	Pet.find({
 		$and: [
 			{
 				'coords.lat': {
-					$lte: northEast.lat,
-					$gte: southWest.lat,
+					$gte: minLat,
+					$lte: maxLat,
 				},
 			},
 			{
 				'coords.lng': {
-					$lte: northEast.lng,
-					$gte: southWest.lng,
+					$gte: minLng,
+					$lte: maxLng,
 				},
 			},
 		],
@@ -93,6 +99,7 @@ router
 	.route('/:id')
 	.get((req, res, next) => {
 		// Get pet by id
+		// localhost:3000/pets/:id?q=
 		const id = req.params.id;
 		const filter = req.query.q || '';
 		Pet.findById(id, `${filter}`)
