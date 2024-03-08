@@ -22,7 +22,7 @@ router.get('/on-map', (req, res, next) => {
 				},
 			},
 		},
-		{ filter }
+		filter
 	)
 		.exec()
 		.then(result => {
@@ -85,7 +85,7 @@ router
 	.route('/:id')
 	.get((req, res, next) => {
 		// Get pet by id
-		// localhost:3000/pets/:id?q=
+		// localhost:3000/pets/:id?f=
 		const id = req.params.id;
 		const filter = req.query.f || '';
 		Pet.findById(id, filter)
