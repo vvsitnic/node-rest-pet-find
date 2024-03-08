@@ -6,12 +6,12 @@ const Pet = require('../models/pet.js');
 
 router.get('/on-map', (req, res, next) => {
 	// Find pets on specific are of the world
-	// localhost:3000/pets/on-map?mnlt=&mxlt=&mnlg=&mxlg=
+	// localhost:3000/pets/on-map?mnlat=&mxlat=&mnlng=&mxlng=
 	const {
-		mnlt: minLat,
-		mxlt: maxLat,
-		mnlg: minLng,
-		mxlg: maxLng,
+		mnlat: minLat,
+		mxlat: maxLat,
+		mnlng: minLng,
+		mxlng: maxLng,
 	} = req.query;
 
 	Pet.find({
