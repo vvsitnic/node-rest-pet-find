@@ -20,4 +20,6 @@ const petSchema = mongoose.Schema({
 	dateLost: Number,
 });
 
+petSchema.index({ location: '2dsphere' });
+
 module.exports = mongoose.model('Pet', petSchema);

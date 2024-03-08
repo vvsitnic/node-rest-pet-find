@@ -43,7 +43,6 @@ router.get('/nearby', (req, res, next) => {
 	// localhost:3000/pets/nearby?lat=&lng=&d=
 	const { lat, lng, d: distance } = req.query;
 
-	// FIXME:
 	Pet.find({
 		location: {
 			$near: {
