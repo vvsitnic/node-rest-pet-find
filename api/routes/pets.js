@@ -6,29 +6,19 @@ const Pet = require('../models/pet.js');
 
 router.get('/on-map', (req, res, next) => {
 	// Fetch pets that are in configurable are
-	// localhost:3000/pets/on-map?mnlat=&mxlat=&mnlng=&mxlng=
-	const {
-		mnlat: minLat,
-		mxlat: maxLat,
-		mnlng: minLng,
-		mxlng: maxLng,
-	} = req.query;
+	// localhost:3000/pets/on-map?n=&e=&s=&w=
+	// TODO: change names of variables
+	const { n, e, s, w } = req.query;
 
 	Pet.find({
-		$and: [
-			{
-				'coords.lat': {
-					$gte: minLat,
-					$lte: maxLat,
-				},
+		location: {
+			$geoWithin: {
+				$box: [
+					[+e, +n],
+					[+w, +s],
+				],
 			},
-			{
-				'coords.lng': {
-					$gte: minLng,
-					$lte: maxLng,
-				},
-			},
-		],
+		},
 	})
 		.exec()
 		.then(result => {
