@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const petRouter = require('./api/routes/pets');
-const userRouter = require('/api/routes/user');
+const userRouter = require('./api/routes/user');
 
 // Connect to database
 mongoose

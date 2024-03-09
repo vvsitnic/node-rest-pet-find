@@ -111,11 +111,10 @@ router
 	// })
 	.delete((req, res, next) => {
 		// Delete pet with specific id
-		const id = req.params.id;
-		Pet.deleteOne({ _id: id })
+		Pet.deleteOne({ _id: req.params.id })
 			.exec()
 			.then(() => {
-				console.log(`${id} deleted`);
+				console.log(`Pet deleted`);
 				res.status(200).json({ message: 'Pet deleted' });
 			})
 			.catch(err => next(err));

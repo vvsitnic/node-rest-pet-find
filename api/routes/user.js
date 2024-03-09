@@ -6,23 +6,44 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
 router.post('/signup', (req, res, next) => {
-	bcrypt.hash(req.body.password, 10, (err, hash) => {
-		if (err) {
-			next(new Error(err));
-		} else {
-			const user = new User({
-				_id: mongoose.Schema.Types.ObjectId,
-				email: req.body.email,
-				password: hash,
-			});
-			user.save()
-				.then(result => {
-					console.log(result);
-					res.status(201).json({ message: 'User created' });
-				})
-				.catch(err => next(err));
-		}
-	});
+	User.findOne({ email: req.body.email })
+		.exec()
+		.then(user => {
+			if (user) {
+				return res.status(409).json({ message: 'Mail exists' });
+			} else {
+				bcrypt.hash(req.body.password, 10, (err, hash) => {
+					if (err) {
+						next(new Error(err));
+					} else {
+						const user = new User({
+							_id: new mongoose.Types.ObjectId(),
+							email: req.body.email,
+							password: hash,
+						});
+						user.save()
+							.then(result => {
+								console.log(result);
+								res.status(201).json({
+									message: 'User created',
+								});
+							})
+							.catch(err => next(err));
+					}
+				});
+			}
+		})
+		.catch(err => next(err));
+});
+
+router.delete('/:id', (req, res, next) => {
+	User.deleteOne({ _id: req.params.id })
+		.exec()
+		.then(() => {
+			console.log(`User deleted`);
+			res.status(200).json({ message: 'User deleted' });
+		})
+		.catch(err => next(err));
 });
 
 module.exports = router;
