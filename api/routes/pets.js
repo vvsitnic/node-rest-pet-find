@@ -115,6 +115,7 @@ router
 			.exec()
 			.then(() => {
 				console.log(`${id} deleted successfully`);
+				res.status(200).json({});
 			})
 			.catch(err => next(err));
 	});

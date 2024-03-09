@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const petSchema = mongoose.Schema({
+const petSchema = new Schema({
 	_id: mongoose.Schema.Types.ObjectId,
 	petName: {
 		type: String,
@@ -34,4 +35,5 @@ const petSchema = mongoose.Schema({
 
 petSchema.index({ location: '2dsphere' });
 
-module.exports = mongoose.model('Pet', petSchema);
+const Pet = mongoose.model('Pet', petSchema);
+module.exports = Pet;
