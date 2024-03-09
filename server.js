@@ -5,11 +5,22 @@ const mongoose = require('mongoose');
 
 const petRouter = require('./api/routes/pets.js');
 
-mongoose.connect('mongodb://0.0.0.0:27017/pet-find');
+// Connect to database
+mongoose
+	.connect('mongodb://0.0.0.0:27017/pet-find')
+	.then(() => {
+		// Start listening for requests
+		const port = process.env.PORT || 3000;
+		app.listen(port, () => {
+			console.log(`App running on port ${port}`);
+		});
+	})
+	.catch(err => console.log(err));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// CORS
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header(
@@ -26,20 +37,18 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Handle on /pets routes
 app.use('/pets', petRouter);
 
+// Throw error if route wasn't found
 app.use((req, res, next) => {
 	const error = new Error('Not found');
 	error.status = 404;
 	next(error);
 });
 
+// Handle errors
 app.use((err, req, res, next) => {
 	console.log(err);
 	res.status(err.status || 500).json({ error: err });
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-	console.log(`App running on port ${port}`);
 });

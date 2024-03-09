@@ -2,9 +2,18 @@ const mongoose = require('mongoose');
 
 const petSchema = mongoose.Schema({
 	_id: mongoose.Schema.Types.ObjectId,
-	petName: String,
-	petOwner: String,
-	phone: Number,
+	petName: {
+		type: String,
+		required: true,
+	},
+	petOwner: {
+		type: String,
+		required: true,
+	},
+	phone: {
+		type: Number,
+		required: true,
+	},
 	email: String,
 	location: {
 		type: {
@@ -17,7 +26,10 @@ const petSchema = mongoose.Schema({
 			required: true,
 		},
 	},
-	dateLost: Number,
+	dateLost: {
+		type: Number,
+		required: true,
+	},
 });
 
 petSchema.index({ location: '2dsphere' });
