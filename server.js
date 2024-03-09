@@ -3,7 +3,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const petRouter = require('./api/routes/pets.js');
+const petRouter = require('./api/routes/pets');
+const userRouter = require('/api/routes/user');
 
 // Connect to database
 mongoose
@@ -37,8 +38,9 @@ app.use((req, res, next) => {
 	next();
 });
 
-// Handle on /pets routes
+// Handle routes
 app.use('/pets', petRouter);
+app.use('/user', userRouter);
 
 // Throw error if route wasn't found
 app.use((req, res, next) => {

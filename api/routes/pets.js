@@ -60,7 +60,7 @@ router.get('/nearby', (req, res, next) => {
 		.catch(err => next(err));
 });
 
-router.post('/', (req, res, next) => {
+router.post('/create', (req, res, next) => {
 	// Create new pet doc
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
@@ -76,7 +76,8 @@ router.post('/', (req, res, next) => {
 	});
 	pet.save()
 		.then(result => {
-			res.status(200).json({ id: result.id });
+			console.log(result);
+			res.status(201).json({ id: result.id });
 		})
 		.catch(err => next(err));
 });
@@ -114,8 +115,8 @@ router
 		Pet.deleteOne({ _id: id })
 			.exec()
 			.then(() => {
-				console.log(`${id} deleted successfully`);
-				res.status(200).json({});
+				console.log(`${id} deleted`);
+				res.status(200).json({ message: 'Pet deleted' });
 			})
 			.catch(err => next(err));
 	});
