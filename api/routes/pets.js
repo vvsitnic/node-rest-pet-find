@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const checkAuth = require('../middleware/check-auth');
 
 const Pet = require('../models/pet.js');
 
@@ -60,7 +61,7 @@ router.get('/nearby', (req, res, next) => {
 		.catch(err => next(err));
 });
 
-router.post('/create', (req, res, next) => {
+router.post('/create', checkAuth, (req, res, next) => {
 	// Create new pet doc
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
@@ -109,7 +110,7 @@ router
 	// 			res.status(500).json({ error: err });
 	// 		});
 	// })
-	.delete((req, res, next) => {
+	.delete(checkAuth, (req, res, next) => {
 		// Delete pet with specific id
 		Pet.deleteOne({ _id: req.params.id })
 			.exec()
