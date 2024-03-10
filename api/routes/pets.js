@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const checkAuth = require('../middleware/check-auth');
-const petsController = require('../controllers/pets');
+const PetsController = require('../controllers/pets');
 
-router.get('/on-map', petsController.pets_on_map);
+router.get('/on-map', PetsController.pets_on_map);
 
-router.get('/nearby', petsController.pets_nearby);
+router.get('/nearby', PetsController.pets_nearby);
 
-router.post('/create', checkAuth, petsController.create_pet);
+router.post('/create', checkAuth, PetsController.create_pet);
 
 router
 	.route('/:id')
-	.get(petsController.get_pet)
+	.get(PetsController.get_pet)
 	// .patch(checkAuth, )
-	.delete(checkAuth, petsController.delete_pet);
+	.delete(checkAuth, PetsController.delete_pet);
 
 module.exports = router;
