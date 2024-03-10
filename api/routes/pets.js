@@ -1,124 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const checkAuth = require('../middleware/check-auth');
+const petsController = require('../controllers/pets');
 
-const Pet = require('../models/pet.js');
+router.get('/on-map', petsController.pets_on_map);
 
-router.get('/on-map', (req, res, next) => {
-	// Fetch pets that are in configurable are
-	// localhost:3000/pets/on-map?n=&e=&s=&w=&f=
-	// TODO: change names of variables
-	const { n, e, s, w } = req.query;
-	const filter = req.query.f || '';
+router.get('/nearby', petsController.pets_nearby);
 
-	Pet.find(
-		{
-			location: {
-				$geoWithin: {
-					$box: [
-						[+e, +n],
-						[+w, +s],
-					],
-				},
-			},
-		},
-		filter
-	)
-		.exec()
-		.then(result => {
-			console.log(result);
-			res.status(200).json(result);
-		})
-		.catch(err => next(err));
-});
-
-router.get('/nearby', (req, res, next) => {
-	// Fetch pets that are nearby, with the radius being a configurable parameter.
-	// localhost:3000/pets/nearby?lat=&lng=&d=&f=
-	const { lat, lng, d: distance } = req.query;
-	const filter = req.query.f || '';
-
-	Pet.find(
-		{
-			location: {
-				$near: {
-					$geometry: {
-						type: 'Point',
-						coordinates: [lng, lat],
-					},
-					$maxDistance: distance,
-				},
-			},
-		},
-		filter
-	)
-		.exec()
-		.then(result => {
-			console.log(result);
-			res.status(200).json(result);
-		})
-		.catch(err => next(err));
-});
-
-router.post('/create', checkAuth, (req, res, next) => {
-	// Create new pet doc
-	const pet = new Pet({
-		_id: new mongoose.Types.ObjectId(),
-		petName: req.body.petName,
-		petOwner: req.body.petOwner,
-		phone: req.body.phone,
-		email: req.body.email,
-		location: {
-			type: 'Point',
-			coordinates: [req.body.coords.lng, req.body.coords.lat],
-		},
-		dateLost: req.body.dateLost,
-	});
-	pet.save()
-		.then(result => {
-			console.log(result);
-			res.status(201).json({ id: result.id });
-		})
-		.catch(err => next(err));
-});
+router.post('/create', checkAuth, petsController.create_pet);
 
 router
 	.route('/:id')
-	.get((req, res, next) => {
-		// Get pet by id
-		// localhost:3000/pets/:id?f=
-		const id = req.params.id;
-		const filter = req.query.f || '';
-		Pet.findById(id, filter)
-			.exec()
-			.then(doc => {
-				res.status(200).json(doc);
-			})
-			.catch(err => next(err));
-	})
-	// .patch(async (req, res, next) => {
-	// 	Edit data of pet with specific id
-	// 	const id = req.params.id;
-	// 	Pet.updateOne({ _id: id })
-	// 		.exec()
-	// 		.then(() => {
-	// 			console.log(`${id} deleted successfully`);
-	// 		})
-	// 		.catch(err => {
-	// 			console.log(err);
-	// 			res.status(500).json({ error: err });
-	// 		});
-	// })
-	.delete(checkAuth, (req, res, next) => {
-		// Delete pet with specific id
-		Pet.deleteOne({ _id: req.params.id })
-			.exec()
-			.then(() => {
-				console.log(`Pet deleted`);
-				res.status(200).json({ message: 'Pet deleted' });
-			})
-			.catch(err => next(err));
-	});
+	.get(petsController.get_pet)
+	// .patch(checkAuth, )
+	.delete(checkAuth, petsController.delete_pet);
 
 module.exports = router;
