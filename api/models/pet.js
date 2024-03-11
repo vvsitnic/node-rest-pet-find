@@ -7,15 +7,18 @@ const petSchema = new Schema({
 		type: String,
 		required: true,
 	},
-	petOwner: {
+	description: {
 		type: String,
 		required: true,
 	},
-	phone: {
-		type: Number,
-		required: true,
+	additionalDetails: String,
+	contacts: {
+		phone: {
+			type: Number,
+			required: true,
+		},
+		email: String,
 	},
-	email: String,
 	location: {
 		type: {
 			type: String,
@@ -31,6 +34,7 @@ const petSchema = new Schema({
 		type: Number,
 		required: true,
 	},
+	reward: Boolean,
 });
 
 petSchema.index({ location: '2dsphere' });
