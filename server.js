@@ -7,8 +7,10 @@ const petRouter = require('./api/routes/pets');
 const userRouter = require('./api/routes/user');
 
 // Connect to database
+const uri = `mongodb+srv://asleepcarpenterdev:owkYQu0Q6aIcMVgz@petfindrestapi.z08dekv.mongodb.net/?retryWrites=true&w=majority&appName=PetFindRestAPI`;
+console.log(uri);
 mongoose
-	.connect('mongodb://0.0.0.0:27017/pet-find')
+	.connect(uri)
 	.then(() => {
 		// Start listening for requests
 		const port = process.env.PORT || 3000;

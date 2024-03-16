@@ -13,14 +13,14 @@ const userSchema = new Schema({
 		type: String,
 		required: true,
 	},
-	// name: {
-	// 	type: String,
-	// 	required: true,
-	// },
-	// phone: {
-	// 	type: Number,
-	// 	required: true,
-	// },
+	name: {
+		type: String,
+		required: true,
+	},
+	phone: {
+		type: Number,
+		required: true,
+	},
 });
 
 const User = mongoose.model('User', userSchema);
