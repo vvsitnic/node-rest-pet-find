@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -61,7 +62,7 @@ const user_login = (req, res, next) => {
 								email: user.email,
 								id: user.id,
 							},
-							'2502014df51cd292ffa8eb8b21de27a438c501ce567792088e3b115d81f752fb131ecad5628183691e380c2109d5b7222f9ac7137ec9bdd4e61875faa332a9bb',
+							process.env.ACCESSS_TOKE_SECRET,
 							{
 								expiresIn: '1h',
 							}

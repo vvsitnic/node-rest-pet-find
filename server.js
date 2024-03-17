@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -7,8 +8,7 @@ const petRouter = require('./api/routes/pets');
 const userRouter = require('./api/routes/user');
 
 // Connect to database
-const uri = `mongodb+srv://asleepcarpenterdev:owkYQu0Q6aIcMVgz@petfindrestapi.z08dekv.mongodb.net/?retryWrites=true&w=majority&appName=PetFindRestAPI`;
-console.log(uri);
+const uri = `mongodb+srv://${process.env.MONGO_ATLAS_PW}@petfindrestapi.z08dekv.mongodb.net/?retryWrites=true&w=majority&appName=PetFindRestAPI`;
 mongoose
 	.connect(uri)
 	.then(() => {
