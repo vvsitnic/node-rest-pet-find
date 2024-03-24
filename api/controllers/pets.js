@@ -59,15 +59,17 @@ const pets_nearby = (req, res, next) => {
 
 const create_pet = (req, res, next) => {
 	// Create new pet doc
+	console.log(req.file);
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
 		petName: req.body.petName,
+		description: req.body.description,
+		additionalDetails: req.body.additionalDetails,
+		productImage: req.file.path,
 		contacts: {
 			phone: req.body.contacts.phone,
 			email: req.body.contacts.email,
 		},
-		description: req.body.description,
-		additionalDetails: req.body.additionalDetails,
 		location: {
 			type: 'Point',
 			coordinates: [req.body.coords.lng, req.body.coords.lat],

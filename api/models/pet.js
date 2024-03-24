@@ -13,6 +13,7 @@ const petSchema = new Schema(
 			required: true,
 		},
 		additionalDetails: String,
+		productImage: { type: String, required: true },
 		contacts: {
 			phone: {
 				type: Number,
