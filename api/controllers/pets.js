@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Pet = require('../models/pet.js');
+const fs = require('fs');
 
 const pets_on_map = (req, res, next) => {
 	// Fetch pets that are in configurable are
@@ -62,6 +63,7 @@ const create_pet = (req, res, next) => {
 	const petData = JSON.parse(req.body.petData);
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
+		userEmail: req.userData.email,
 		petName: petData.petName,
 		description: petData.description,
 		additionalDetails: petData.additionalDetails,
@@ -114,10 +116,12 @@ const get_pet = (req, res, next) => {
 
 const delete_pet = (req, res, next) => {
 	// Delete pet with specific id
-	Pet.deleteOne({ _id: req.params.id })
+	Pet.deleteOne({ _id: req.params.id, userEmail: req.userData.email })
 		.exec()
-		.then(() => {
-			console.log(`Pet deleted`);
+		.then(doc => {
+			if (doc.deletedCount === 0)
+				return res.status(404).json({ message: 'Pet not found' });
+
 			res.status(200).json({ message: 'Pet deleted' });
 		})
 		.catch(err => next(err));

@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 const petSchema = new Schema(
 	{
 		_id: mongoose.Schema.Types.ObjectId,
+		userEmail: {
+			type: String,
+			required: true,
+		},
 		petName: {
 			type: String,
 			required: true,
