@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const petSchema = new Schema(
 	{
 		_id: mongoose.Schema.Types.ObjectId,
-		userEmail: {
+		userId: {
 			type: String,
 			required: true,
 		},
@@ -16,7 +16,7 @@ const petSchema = new Schema(
 			type: String,
 			required: true,
 		},
-		additionalDetails: String,
+		details: String,
 		petImage: { type: String, required: true },
 		contacts: {
 			phone: {

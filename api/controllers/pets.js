@@ -7,7 +7,7 @@ const pets_on_map = (req, res, next) => {
 	// localhost:3000/pets/on-map?n=&e=&s=&w=&f=
 	// TODO: change names of variables
 	const { n, e, s, w } = req.query;
-	const filter = req.query.f || '';
+	const filter = req.query.f || ''; //.replace('userEmail', '')
 
 	Pet.find(
 		{
@@ -34,7 +34,7 @@ const pets_nearby = (req, res, next) => {
 	// Fetch pets that are nearby, with the radius being a configurable parameter.
 	// localhost:3000/pets/nearby?lat=&lng=&d=&f=
 	const { lat, lng, d: distance } = req.query;
-	const filter = req.query.f || '';
+	const filter = req.query.f || ''; //.replace('userEmail', '')
 
 	Pet.find(
 		{
@@ -63,10 +63,10 @@ const create_pet = (req, res, next) => {
 	const petData = JSON.parse(req.body.petData);
 	const pet = new Pet({
 		_id: new mongoose.Types.ObjectId(),
-		userEmail: req.userData.email,
+		userId: req.userData.id,
 		petName: petData.petName,
 		description: petData.description,
-		additionalDetails: petData.additionalDetails,
+		details: petData.details,
 		petImage: req.file.path,
 		contacts: {
 			phone: petData.contacts.phone,
@@ -91,7 +91,7 @@ const get_pet = (req, res, next) => {
 	// Get pet by id
 	// localhost:3000/pets/:id?f=
 	const id = req.params.id;
-	const filter = req.query.f || '';
+	const filter = req.query.f || ''; //.replace('userEmail', '')
 	Pet.findById(id, filter)
 		.exec()
 		.then(doc => {
@@ -116,11 +116,11 @@ const get_pet = (req, res, next) => {
 
 const delete_pet = (req, res, next) => {
 	// Delete pet with specific id
-	Pet.deleteOne({ _id: req.params.id, userEmail: req.userData.email })
+	Pet.deleteOne({ _id: req.params.id, userId: req.userData.id })
 		.exec()
 		.then(doc => {
 			if (doc.deletedCount === 0)
-				return res.status(404).json({ message: 'Pet not found' });
+				return res.status(403).json({ message: 'Pet not found' });
 
 			res.status(200).json({ message: 'Pet deleted' });
 		})
