@@ -21,7 +21,6 @@ const user_signup = (req, res, next) => {
 							email: req.body.email,
 							password: hash,
 							name: req.body.name,
-							phone: req.body.phone,
 						});
 						user.save()
 							.then(result => {
@@ -83,6 +82,9 @@ const user_login = (req, res, next) => {
 };
 
 const delete_user = (req, res, next) => {
+	if (req.params.id !== req.userData.id)
+		return res.status(403).json({ message: 'Err' });
+
 	User.deleteOne({ _id: req.params.id })
 		.exec()
 		.then(() => {

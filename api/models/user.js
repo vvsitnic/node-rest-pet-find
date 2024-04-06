@@ -17,8 +17,8 @@ const userSchema = new Schema({
 		type: String,
 		required: true,
 	},
-	phone: {
-		type: Number,
+	posts: {
+		type: [Number],
 		required: true,
 	},
 });
