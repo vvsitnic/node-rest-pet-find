@@ -58,7 +58,6 @@ const pets_nearby = (req, res, next) => {
 		.catch(err => next(err));
 };
 
-const User = require('../models/user.js');
 const create_pet = async (req, res, next) => {
 	// Create new pet doc
 	try {
@@ -82,11 +81,6 @@ const create_pet = async (req, res, next) => {
 			reward: petData.reward,
 		});
 		const result = await pet.save();
-		console.log(result);
-
-		const user = await User.findById(req.userData.id).exec();
-		user.posts.push(result.id);
-		await user.save();
 
 		res.status(201).json({ id: result.id });
 	} catch (err) {
@@ -105,6 +99,21 @@ const get_pet = (req, res, next) => {
 			res.status(200).json(doc);
 		})
 		.catch(err => next(err));
+};
+
+const get_pets_of_user = async (req, res, next) => {
+	// Get pet by id
+	// localhost:3000/pets-of-user/:id?f=
+	try {
+		if (req.params.id !== req.userData.id)
+			return res.status(403).json({ message: 'Err' });
+
+		const filter = req.query.f || ''; //.replace('userEmail', '')
+		const docs = await Pet.find({ userId: req.params.id }, filter).exec();
+		res.status(200).json(docs);
+	} catch (err) {
+		next(err);
+	}
 };
 
 // (req, res, next) => {
@@ -140,4 +149,5 @@ module.exports = {
 	create_pet,
 	get_pet,
 	delete_pet,
+	get_pets_of_user,
 };

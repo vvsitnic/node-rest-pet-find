@@ -33,6 +33,8 @@ router.get('/on-map', PetsController.pets_on_map);
 
 router.get('/nearby', PetsController.pets_nearby);
 
+router.get('/pets-of-user/:id', checkAuth, PetsController.get_pets_of_user);
+
 router.post(
 	'/create',
 	checkAuth,
