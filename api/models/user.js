@@ -18,7 +18,7 @@ const userSchema = new Schema({
 		required: true,
 	},
 	posts: {
-		type: [Number],
+		type: [String],
 		required: true,
 	},
 });

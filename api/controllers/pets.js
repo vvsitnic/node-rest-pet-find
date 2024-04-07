@@ -58,33 +58,40 @@ const pets_nearby = (req, res, next) => {
 		.catch(err => next(err));
 };
 
-const create_pet = (req, res, next) => {
+const User = require('../models/user.js');
+const create_pet = async (req, res, next) => {
 	// Create new pet doc
-	const petData = JSON.parse(req.body.petData);
-	const pet = new Pet({
-		_id: new mongoose.Types.ObjectId(),
-		userId: req.userData.id,
-		petName: petData.petName,
-		description: petData.description,
-		details: petData.details,
-		petImage: req.file.path,
-		contacts: {
-			phone: petData.contacts.phone,
-			email: petData.contacts.email,
-		},
-		location: {
-			type: 'Point',
-			coordinates: [petData.coords.lng, petData.coords.lat],
-		},
-		dateLost: petData.dateLost,
-		reward: petData.reward,
-	});
-	pet.save()
-		.then(result => {
-			console.log(result);
-			res.status(201).json({ id: result.id });
-		})
-		.catch(err => next(err));
+	try {
+		const petData = JSON.parse(req.body.petData);
+		const pet = new Pet({
+			_id: new mongoose.Types.ObjectId(),
+			userId: req.userData.id,
+			petName: petData.petName,
+			description: petData.description,
+			details: petData.details,
+			petImage: req.file.path,
+			contacts: {
+				phone: petData.contacts.phone,
+				email: petData.contacts.email,
+			},
+			location: {
+				type: 'Point',
+				coordinates: [petData.coords.lng, petData.coords.lat],
+			},
+			dateLost: petData.dateLost,
+			reward: petData.reward,
+		});
+		const result = await pet.save();
+		console.log(result);
+
+		const user = await User.findById(req.userData.id).exec();
+		user.posts.push(result.id);
+		await user.save();
+
+		res.status(201).json({ id: result.id });
+	} catch (err) {
+		next(err);
+	}
 };
 
 const get_pet = (req, res, next) => {
