@@ -41,7 +41,7 @@ const user_signup = async (req, res, next) => {
 
 const user_login = async (req, res, next) => {
 	try {
-		const user = User.findOne({ email: req.body.email }).exec();
+		const user = await User.findOne({ email: req.body.email }).exec();
 		if (!user) {
 			return res.status(401).json({
 				message: 'Auth failed',
