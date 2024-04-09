@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const Pet = require('../models/pet.js');
 const fs = require('fs');
-
 const crypto = require('node:crypto');
+const { S3, PutObjectCommand } = require('@aws-sdk/client-s3');
+const sharp = require('sharp');
+
+require('dotenv').config();
 const randomImageName = (bytes = 32) =>
 	crypto.randomBytes(bytes).toString('hex');
-
-const { S3, PutObjectCommand } = require('@aws-sdk/client-s3');
-require('dotenv').config();
 
 const bucketName = process.env.BUCKET_NAME;
 const bucketRegion = process.env.BUCKET_REGION;
@@ -73,10 +73,14 @@ const pets_nearby = async (req, res, next) => {
 const create_pet = async (req, res, next) => {
 	// Create new pet doc
 	try {
+		const buffer = await sharp(req.file.buffer)
+			.resize(1920, 1080, { fit: 'cover' })
+			.toBuffer();
+
 		const params = {
 			Bucket: bucketName,
 			Key: randomImageName(),
-			Body: req.file.buffer,
+			Body: buffer,
 			ContentType: req.file.mimetype,
 		};
 
