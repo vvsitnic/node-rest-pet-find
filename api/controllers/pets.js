@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const Pet = require('../models/pet.js');
 const fs = require('fs');
 
+const crypto = require('node:crypto');
+const randomImageName = (bytes = 32) =>
+	crypto.randomBytes(bytes).toString('hex');
+
+const { S3, PutObjectCommand } = require('@aws-sdk/client-s3');
+require('dotenv').config();
+
+const bucketName = process.env.BUCKET_NAME;
+const bucketRegion = process.env.BUCKET_REGION;
+
+const s3 = new S3({ region: bucketRegion });
+
 const pets_on_map = async (req, res, next) => {
 	// Fetch pets that are in configurable are
 	// localhost:3000/pets/on-map?n=&e=&s=&w=&f=
@@ -61,6 +73,17 @@ const pets_nearby = async (req, res, next) => {
 const create_pet = async (req, res, next) => {
 	// Create new pet doc
 	try {
+		const params = {
+			Bucket: bucketName,
+			Key: randomImageName(),
+			Body: req.file.buffer,
+			ContentType: req.file.mimetype,
+		};
+
+		const command = new PutObjectCommand(params);
+		await s3.send(command);
+
+		return;
 		const petData = JSON.parse(req.body.petData);
 		const pet = new Pet({
 			_id: new mongoose.Types.ObjectId(),
