@@ -18,6 +18,7 @@ const petSchema = new Schema(
 		},
 		details: String,
 		petImage: { type: String, required: true },
+		petImageUrl: { type: String, required: false },
 		contacts: {
 			phone: {
 				type: Number,

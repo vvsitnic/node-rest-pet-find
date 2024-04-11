@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 const Pet = require('../models/pet.js');
-const fs = require('fs');
 const crypto = require('node:crypto');
-const { S3, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const {
+	S3Client,
+	PutObjectCommand,
+	GetObjectCommand,
+} = require('@aws-sdk/client-s3');
 const sharp = require('sharp');
 
 require('dotenv').config();
@@ -12,7 +16,7 @@ const randomImageName = (bytes = 32) =>
 const bucketName = process.env.BUCKET_NAME;
 const bucketRegion = process.env.BUCKET_REGION;
 
-const s3 = new S3({ region: bucketRegion });
+const s3 = new S3Client({ region: bucketRegion });
 
 const pets_on_map = async (req, res, next) => {
 	// Fetch pets that are in configurable are
@@ -22,7 +26,7 @@ const pets_on_map = async (req, res, next) => {
 		const { n, e, s, w } = req.query;
 		const filter = req.query.f || '';
 
-		const petDocsArray = await Pet.find(
+		const petDocs = await Pet.find(
 			{
 				location: {
 					$geoWithin: {
@@ -36,7 +40,21 @@ const pets_on_map = async (req, res, next) => {
 			filter
 		).exec();
 
-		res.status(200).json(petDocsArray);
+		if (petDocs[0].petImage) {
+			for (const petDoc of petDocs) {
+				const getObjectParams = {
+					Bucket: bucketName,
+					Key: petDoc.petImage,
+				};
+				const command = new GetObjectCommand(getObjectParams);
+				const url = await getSignedUrl(s3, command, {
+					expiresIn: 3600,
+				});
+				petDoc.petImageUrl = url;
+			}
+		}
+
+		res.status(200).json(petDocs);
 	} catch (err) {
 		next(err);
 	}
@@ -49,7 +67,7 @@ const pets_nearby = async (req, res, next) => {
 		const { lat, lng, d: distance } = req.query;
 		const filter = req.query.f || '';
 
-		const petDocsArray = await Pet.find(
+		const petDocs = await Pet.find(
 			{
 				location: {
 					$near: {
@@ -64,7 +82,21 @@ const pets_nearby = async (req, res, next) => {
 			filter
 		).exec();
 
-		res.status(200).json(petDocsArray);
+		if (petDocs[0].petImage) {
+			for (const petDoc of petDocs) {
+				const getObjectParams = {
+					Bucket: bucketName,
+					Key: petDoc.petImage,
+				};
+				const command = new GetObjectCommand(getObjectParams);
+				const url = await getSignedUrl(s3, command, {
+					expiresIn: 3600,
+				});
+				petDoc.petImageUrl = url;
+			}
+		}
+
+		res.status(200).json(petDocs);
 	} catch (err) {
 		next(err);
 	}
@@ -77,9 +109,10 @@ const create_pet = async (req, res, next) => {
 			.resize(1920, 1080, { fit: 'cover' })
 			.toBuffer();
 
+		const imageName = randomImageName();
 		const params = {
 			Bucket: bucketName,
-			Key: randomImageName(),
+			Key: imageName,
 			Body: buffer,
 			ContentType: req.file.mimetype,
 		};
@@ -87,7 +120,6 @@ const create_pet = async (req, res, next) => {
 		const command = new PutObjectCommand(params);
 		await s3.send(command);
 
-		return;
 		const petData = JSON.parse(req.body.petData);
 		const pet = new Pet({
 			_id: new mongoose.Types.ObjectId(),
@@ -95,7 +127,7 @@ const create_pet = async (req, res, next) => {
 			petName: petData.petName,
 			description: petData.description,
 			details: petData.details,
-			petImage: req.file.path,
+			petImage: imageName,
 			contacts: {
 				phone: petData.contacts.phone,
 				email: petData.contacts.email,
@@ -122,6 +154,17 @@ const get_pet = async (req, res, next) => {
 		const id = req.params.id;
 		const filter = req.query.f || '';
 		const petDoc = await Pet.findById(id, filter);
+
+		if (petDoc.petImage) {
+			const getObjectParams = {
+				Bucket: bucketName,
+				Key: petDoc.petImage,
+			};
+			const command = new GetObjectCommand(getObjectParams);
+			const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+			petDoc.petImageUrl = url;
+		}
+
 		res.status(200).json(petDoc);
 	} catch (err) {
 		next(err);
@@ -136,8 +179,26 @@ const get_pets_of_user = async (req, res, next) => {
 			return res.status(403).json({ message: 'Err' });
 
 		const filter = req.query.f || '';
-		const docs = await Pet.find({ userId: req.params.id }, filter).exec();
-		res.status(200).json(docs);
+		const petDocs = await Pet.find(
+			{ userId: req.params.id },
+			filter
+		).exec();
+
+		if (petDocs[0].petImage) {
+			for (const petDoc of petDocs) {
+				const getObjectParams = {
+					Bucket: bucketName,
+					Key: petDoc.petImage,
+				};
+				const command = new GetObjectCommand(getObjectParams);
+				const url = await getSignedUrl(s3, command, {
+					expiresIn: 3600,
+				});
+				petDoc.petImageUrl = url;
+			}
+		}
+
+		res.status(200).json(petDocs);
 	} catch (err) {
 		next(err);
 	}
