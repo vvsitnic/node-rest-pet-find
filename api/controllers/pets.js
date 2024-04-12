@@ -6,6 +6,7 @@ const {
 	S3Client,
 	PutObjectCommand,
 	GetObjectCommand,
+	DeleteObjectCommand,
 } = require('@aws-sdk/client-s3');
 const sharp = require('sharp');
 
@@ -221,13 +222,27 @@ const get_pets_of_user = async (req, res, next) => {
 const delete_pet = async (req, res, next) => {
 	// Delete pet with specific id
 	try {
-		const result = await Pet.deleteOne({
-			_id: req.params.id,
-			userId: req.userData.id,
-		}).exec();
+		const petDoc = await Pet.findOne(
+			{
+				_id: req.params.id,
+				userId: req.userData.id,
+			},
+			'petImage'
+		);
 
-		if (result.deletedCount === 0)
-			return res.status(403).json({ message: 'Pet not found' });
+		if (!petDoc) return res.status(403).json({ message: 'Pet not found' });
+
+		// Delte img in s3 bucket
+		const params = {
+			Bucket: bucketName,
+			Key: petDoc.petImage,
+		};
+		const command = new DeleteObjectCommand(params);
+		await s3.send(command);
+
+		await Pet.deleteOne({
+			_id: req.params.id,
+		}).exec();
 
 		res.status(200).json({ message: 'Pet deleted' });
 	} catch (err) {
