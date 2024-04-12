@@ -41,7 +41,7 @@ const pets_on_map = async (req, res, next) => {
 			filter
 		).exec();
 
-		if (petDocs[0].petImage) {
+		if (petDocs.length !== 0 && petDocs[0].petImage) {
 			for (const petDoc of petDocs) {
 				const getObjectParams = {
 					Bucket: bucketName,
@@ -83,7 +83,7 @@ const pets_nearby = async (req, res, next) => {
 			filter
 		).exec();
 
-		if (petDocs[0].petImage) {
+		if (petDocs.length !== 0 && petDocs[0].petImage) {
 			for (const petDoc of petDocs) {
 				const getObjectParams = {
 					Bucket: bucketName,
@@ -194,7 +194,7 @@ const get_pets_of_user = async (req, res, next) => {
 
 		// Check if img urls are needed
 		// Create img urls for each doc
-		if (petDocs[0].petImage) {
+		if (petDocs.length !== 0 && petDocs[0].petImage) {
 			for (const petDoc of petDocs) {
 				const getObjectParams = {
 					Bucket: bucketName,
