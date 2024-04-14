@@ -24,9 +24,9 @@ const pets_on_map = async (req, res, next) => {
 	// localhost:3000/pets/on-map?n=&e=&s=&w=&f=
 	// TODO: change names of variables
 	try {
+		// Find pets
 		const { n, e, s, w } = req.query;
 		const filter = req.query.f || '';
-
 		const petDocs = await Pet.find(
 			{
 				location: {
@@ -41,7 +41,9 @@ const pets_on_map = async (req, res, next) => {
 			filter
 		).exec();
 
+		// Check if img urls are needed
 		if (petDocs.length !== 0 && petDocs[0].petImage) {
+			// Create img urls for each doc
 			for (const petDoc of petDocs) {
 				const getObjectParams = {
 					Bucket: bucketName,
@@ -65,9 +67,9 @@ const pets_nearby = async (req, res, next) => {
 	// Get pets that are nearby
 	// localhost:3000/pets/nearby?lat=&lng=&d=&f=
 	try {
+		// Find pets
 		const { lat, lng, d: distance } = req.query;
 		const filter = req.query.f || '';
-
 		const petDocs = await Pet.find(
 			{
 				location: {
@@ -83,7 +85,9 @@ const pets_nearby = async (req, res, next) => {
 			filter
 		).exec();
 
+		// Check if img urls are needed
 		if (petDocs.length !== 0 && petDocs[0].petImage) {
+			// Create img urls for each doc
 			for (const petDoc of petDocs) {
 				const getObjectParams = {
 					Bucket: bucketName,
@@ -155,12 +159,15 @@ const get_pet = async (req, res, next) => {
 	// Get pet
 	// localhost:3000/pets/:id?f=
 	try {
+		// Get pet
 		const id = req.params.id;
 		const filter = req.query.f || '';
 		const petDoc = await Pet.findById(id, filter);
 
-		if (!petDoc) return res.status(403).json({ message: 'Not found' });
+		// Check if pet exists
+		if (!petDoc) return res.status(404).json({ message: 'Pet not found' });
 
+		// Create pet img url
 		if (petDoc.petImage) {
 			const getObjectParams = {
 				Bucket: bucketName,
@@ -183,7 +190,7 @@ const get_pets_of_user = async (req, res, next) => {
 	try {
 		// Check if user is the one
 		if (req.params.id !== req.userData.id)
-			return res.status(403).json({ message: 'Not found' });
+			return res.status(404).json({ message: 'Pet not found' });
 
 		// Find docs
 		const filter = req.query.f || '';
@@ -193,8 +200,8 @@ const get_pets_of_user = async (req, res, next) => {
 		).exec();
 
 		// Check if img urls are needed
-		// Create img urls for each doc
 		if (petDocs.length !== 0 && petDocs[0].petImage) {
+			// Create img urls for each doc
 			for (const petDoc of petDocs) {
 				const getObjectParams = {
 					Bucket: bucketName,
@@ -214,6 +221,7 @@ const get_pets_of_user = async (req, res, next) => {
 	}
 };
 
+// TODO: FIGUTE OUT HOW TO IMPLEMENT IMAGE THING
 const update_pet = async (req, res, next) => {
 	// Edit pet data
 	try {
@@ -227,7 +235,7 @@ const update_pet = async (req, res, next) => {
 			'petImage'
 		);
 
-		if (!petDoc) return res.status(403).json({ message: 'Pet not found' });
+		if (!petDoc) return res.status(404).json({ message: 'Pet not found' });
 
 		// Delete prev img
 		const deleteImgParams = {
@@ -288,7 +296,7 @@ const delete_pet = async (req, res, next) => {
 			'petImage'
 		);
 
-		if (!petDoc) return res.status(403).json({ message: 'Pet not found' });
+		if (!petDoc) return res.status(404).json({ message: 'Pet not found' });
 
 		// Delete pet's img
 		const params = {
@@ -314,5 +322,5 @@ module.exports = {
 	get_pet,
 	delete_pet,
 	get_pets_of_user,
-	update_pet,
+	// update_pet,
 };
