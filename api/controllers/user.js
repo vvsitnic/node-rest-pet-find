@@ -7,18 +7,22 @@ const User = require('../models/user');
 
 const user_signup = async (req, res, next) => {
 	try {
+		// Check if user exists
 		const user = await User.findOne({ email: req.body.email }).exec();
 
 		if (user) {
 			return res.status(409).json({ message: 'Mail exists' });
 		}
 
+		// Hash password so it was unreadable in db
 		bcrypt.hash(req.body.password, 10, async (err, hash) => {
 			try {
+				// Check for error
 				if (err) {
 					throw new Error(err);
 				}
 
+				// Create user if no error appeard
 				const user = new User({
 					_id: new mongoose.Types.ObjectId(),
 					email: req.body.email,
@@ -41,21 +45,27 @@ const user_signup = async (req, res, next) => {
 
 const user_login = async (req, res, next) => {
 	try {
+		// Check if user exists
 		const user = await User.findOne({ email: req.body.email }).exec();
+
 		if (!user) {
 			return res.status(401).json({
 				message: 'Auth failed',
 			});
 		}
 
+		// Check if password is correct
 		bcrypt.compare(req.body.password, user.password, (err, response) => {
+			// On error
 			if (err) {
 				return res.status(401).json({
 					message: 'Auth failed',
 				});
 			}
 
+			// On success
 			if (response) {
+				// Create a jwt token
 				const token = jwt.sign(
 					{
 						email: user.email,
@@ -66,12 +76,14 @@ const user_login = async (req, res, next) => {
 						expiresIn: '1h',
 					}
 				);
+
 				return res.status(201).json({
 					message: 'Auth successeful',
 					token: token,
 				});
 			}
 
+			// In case none of requirements above are met
 			res.status(401).json({
 				message: 'Auth failed',
 			});
@@ -83,9 +95,11 @@ const user_login = async (req, res, next) => {
 
 const delete_user = async (req, res, next) => {
 	try {
+		// Check if user is the one
 		if (req.params.id !== req.userData.id)
 			return res.status(403).json({ message: 'Err' });
 
+		// Delete user
 		await User.deleteOne({ _id: req.params.id }).exec();
 		res.status(200).json({ message: 'User deleted' });
 	} catch (err) {
