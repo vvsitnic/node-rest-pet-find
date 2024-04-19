@@ -113,6 +113,11 @@ const create_pet = async (req, res, next) => {
 		// Edit img
 		const buffer = await sharp(req.file.buffer)
 			.resize(1920, 1080, { fit: 'cover' })
+			.toFormat('jpeg')
+			.jpeg({
+				quality: 75,
+				force: true,
+			})
 			.toBuffer();
 
 		// Upload img
