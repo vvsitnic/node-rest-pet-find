@@ -120,7 +120,7 @@ const create_pet = async (req, res, next) => {
 			})
 			.toBuffer();
 
-		// Upload img
+		// Create img
 		const imageName = randomImageName();
 		const params = {
 			Bucket: bucketName,
@@ -130,7 +130,6 @@ const create_pet = async (req, res, next) => {
 		};
 
 		const command = new PutObjectCommand(params);
-		await s3.send(command);
 
 		// Create pet doc
 		const petData = JSON.parse(req.body.petData);
@@ -153,6 +152,9 @@ const create_pet = async (req, res, next) => {
 			reward: petData.reward,
 		});
 		const result = await pet.save();
+
+		// Upload img if everything is ok with doc
+		await s3.send(command);
 
 		res.status(201).json({ id: result.id });
 	} catch (err) {
@@ -199,10 +201,7 @@ const get_pets_of_user = async (req, res, next) => {
 
 		// Find docs
 		const filter = req.query.f || '';
-		const petDocs = await Pet.find(
-			{ userId: req.params.id },
-			filter
-		).exec();
+		const petDocs = await Pet.find({ userId: req.params.id }, filter).exec();
 
 		// Check if img urls are needed
 		if (petDocs.length !== 0 && petDocs[0].petImage) {
