@@ -22,13 +22,11 @@ const petSchema = new Schema(
       type: String,
       required: true,
     },
-    details: String,
     petImage: { type: String, required: true },
     petImageUrl: { type: String, required: false },
     contacts: {
       phone: {
-        type: Number,
-        required: true,
+        type: String,
       },
       email: {
         type: String,

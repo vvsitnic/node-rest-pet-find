@@ -110,6 +110,11 @@ const pets_nearby = async (req, res, next) => {
 const create_pet = async (req, res, next) => {
   // Create new pet
   try {
+    // check if user reached limit
+    const petDocs = await Pet.find({ userId: req.userData.id }, 'id').exec();
+    if (petDocs.length >= 10)
+      return res.status(403).json({ message: 'User reached the limit' });
+
     // Edit img
     const buffer = await sharp(req.file.buffer)
       .resize(1920, 1080, { fit: 'cover' })
@@ -133,12 +138,12 @@ const create_pet = async (req, res, next) => {
 
     // Create pet doc
     const petData = JSON.parse(req.body.petData);
+    console.log(petData.petName);
     const pet = new Pet({
       _id: new mongoose.Types.ObjectId(),
       userId: req.userData.id,
       petName: petData.petName,
       description: petData.description,
-      details: petData.details,
       petImage: imageName,
       contacts: {
         phone: petData.contacts.phone,
@@ -158,7 +163,8 @@ const create_pet = async (req, res, next) => {
 
     res.status(201).json({ id: result.id });
   } catch (err) {
-    next(err);
+    console.log(err);
+    next(err.message);
   }
 };
 
@@ -195,13 +201,9 @@ const get_pets_of_user = async (req, res, next) => {
   // Get pets of user
   // localhost:3000/pets-of-user/:id?f=
   try {
-    // Check if user is the one
-    if (req.params.id !== req.userData.id)
-      return res.status(404).json({ message: 'Pet not found' });
-
     // Find docs
     const filter = req.query.f || '';
-    const petDocs = await Pet.find({ userId: req.params.id }, filter).exec();
+    const petDocs = await Pet.find({ userId: req.userData.id }, filter).exec();
 
     // Check if img urls are needed
     if (petDocs.length !== 0 && petDocs[0].petImage) {
@@ -269,7 +271,6 @@ const update_pet = async (req, res, next) => {
     const update = {
       petName: petData.petName,
       description: petData.description,
-      details: petData.details,
       petImage: imageName,
       'contacts.phone': petData.contacts.phone,
       'contacts.email': petData.contacts.email,
