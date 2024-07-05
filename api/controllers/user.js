@@ -39,7 +39,7 @@ const user_signup = async (req, res, next) => {
       }
     });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: 'An error occured' });
   }
 };
 
@@ -89,7 +89,7 @@ const user_login = async (req, res, next) => {
       });
     });
   } catch (error) {
-    next(err);
+    res.status(500).json({ message: 'An error occured' });
   }
 };
 
@@ -103,7 +103,7 @@ const delete_user = async (req, res, next) => {
     await User.deleteOne({ _id: req.params.id }).exec();
     res.status(200).json({ message: 'User deleted' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: 'An error occured' });
   }
 };
 
