@@ -296,8 +296,29 @@ const update_pet = async (req, res) => {
     // Check if pet exists and is created by the user
     if (!petDoc) return res.status(404).json({ message: 'Pet not found' });
 
-    let imageName = null;
-    if (req.file) {
+    // If img name remains null, the image_key won't change
+    let newImageKey = null;
+    if (req.file && req.file.buffer) {
+      newImageKey = randomImageName();
+    }
+
+    const petData = JSON.parse(req.body.petData);
+    // What to update
+    const update = {
+      pet_name: petData.pet_name,
+      long_description: petData.long_description,
+      short_description: petData.short_description,
+      image_key: newImageKey || petDoc.image_key,
+      'contacts.phone': petData.contacts.phone,
+      'contacts.email': petData.contacts.email,
+      'location.coordinates': [petData.coords.lng, petData.coords.lat],
+      date_lost: petData.date_lost,
+    };
+
+    // Update pet
+    await Pet.updateOne(filter, update).exec();
+
+    if (req.file && req.file.buffer) {
       // Delete prev img
       const deleteImgParams = {
         Bucket: bucketName,
@@ -311,10 +332,9 @@ const update_pet = async (req, res) => {
         .resize(...IMAGE_RESIZE_OPTIONS)
         .toBuffer();
 
-      imageName = randomImageName();
       const createImgParams = {
         Bucket: bucketName,
-        Key: imageName,
+        Key: newImageKey,
         Body: buffer,
         ContentType: req.file.mimetype,
       };
@@ -322,22 +342,6 @@ const update_pet = async (req, res) => {
       const createImgCommand = new PutObjectCommand(createImgParams);
       await s3.send(createImgCommand);
     }
-
-    const petData = JSON.parse(req.body.petData);
-    // What to update
-    const update = {
-      pet_name: petData.pet_name,
-      long_description: petData.long_description,
-      short_description: petData.short_description,
-      image_key: imageName || petDoc.image_key,
-      'contacts.phone': petData.contacts.phone,
-      'contacts.email': petData.contacts.email,
-      'location.coordinates': [petData.coords.lng, petData.coords.lat],
-      date_lost: petData.date_lost,
-    };
-
-    // Update pet
-    await Pet.updateOne(filter, update).exec();
 
     res.status(200).json({ message: 'Doc updated successfully' });
   } catch (err) {
